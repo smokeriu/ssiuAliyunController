@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net"
@@ -32,11 +33,14 @@ func ConnectivityCheck(network, ip, port string) bool {
 	address := net.JoinHostPort(ip, port)
 	// Just check connectivity. So we don't Need to handle the error
 	conn, _ := net.DialTimeout(network, address, 10*time.Second)
-	defer func(conn net.Conn) {
-		_ = conn.Close()
-	}(conn)
 
 	if conn != nil {
+		defer func(conn net.Conn) {
+			err := conn.Close()
+			if err != nil {
+				logrus.Warn("Close connection failed when check connectivity.ignore")
+			}
+		}(conn)
 		fmt.Println("")
 		return true
 	} else {
@@ -49,7 +53,7 @@ func ConnectivityCheck(network, ip, port string) bool {
 // @return true -> All ports can connect. false -> One port can't connect
 func PortRangeCheck(destIp, ipProtocol string, startPort, endPort int) bool {
 	// TODO: parallel run this
-	for i := startPort; i < endPort; i++ {
+	for i := startPort; i <= endPort; i++ {
 		isSuccess := ConnectivityCheck(ipProtocol, destIp, strconv.Itoa(i))
 		if !isSuccess {
 			fmt.Printf("Check ip: %s, port: %d. Failed. Will Change to new Ip", destIp, i)

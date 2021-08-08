@@ -23,7 +23,7 @@ func DeleteOneSecurityRule(client *ecs.Client, securityGroupId, sourceCidrIp, ip
 		fmt.Print(err.Error())
 		return false
 	} else {
-		logrus.Info("DeleteOneSecurityRule response is %#v\n", response)
+		logrus.Infof("DeleteOneSecurityRule response is %#v\n", response)
 		return true
 	}
 }
@@ -44,7 +44,7 @@ func AddOneSecurityRule(client *ecs.Client, securityGroupId, sourceCidrIp, ipPro
 		logrus.Error("Get Error when run func: AddOneSecurityRule", err.Error())
 		return false
 	} else {
-		logrus.Info("AddOneSecurityRule response is %#v\n", response)
+		logrus.Infof("AddOneSecurityRule response is %#v\n", response)
 		return true
 	}
 }

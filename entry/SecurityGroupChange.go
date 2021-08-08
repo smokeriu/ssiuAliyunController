@@ -3,11 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/sirupsen/logrus"
 	"ssiuAliyunController/bean"
 	"ssiuAliyunController/util"
-	"strconv"
-	"strings"
 )
 
 func main() {
@@ -39,22 +36,12 @@ func changeSecurityIpByResponseIfDisconnected(client *ecs.Client, destIp, securi
 		portRange := respons.PortRange
 		ipProtocol := respons.IpProtocol
 
-		// check port Connectivity.
-		split := strings.Split(portRange, "/")
-		startPort, _ := strconv.Atoi(split[0])
-		endPort, _ := strconv.Atoi(split[1])
-
-		// 对于无公网ip的用户，可能安全组配置的ip与currentIp不同但仍然能够访问。这种时候不需要修改Ip
-		if !util.PortRangeCheck(destIp, ipProtocol, startPort, endPort) {
-			// Add Rule only when delete success
-			sourceCidrIp := respons.SourceCidrIp
-			priority := respons.Priority
-			if util.DeleteOneSecurityRule(client, securityGroupId, sourceCidrIp, ipProtocol, portRange, priority) {
-				description := respons.Description
-				util.AddOneSecurityRule(client, securityGroupId, newSourceCidrIp, ipProtocol, portRange, priority, description)
-			}
-		} else {
-			logrus.Infof("All ports[%d,%d] of the %s can be connected through the %s protocol.\tNo change will happen\n", startPort, endPort, destIp, ipProtocol)
+		// just change
+		sourceCidrIp := respons.SourceCidrIp
+		priority := respons.Priority
+		if util.DeleteOneSecurityRule(client, securityGroupId, sourceCidrIp, ipProtocol, portRange, priority) {
+			description := respons.Description
+			util.AddOneSecurityRule(client, securityGroupId, newSourceCidrIp, ipProtocol, portRange, priority, description)
 		}
 	}
 }
