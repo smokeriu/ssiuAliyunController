@@ -1,0 +1,7 @@
+account:
+  region: server-region-like-cn-hangzhou
+  accessKey: your-accessKey
+  accessSecret: your-accessSecret
+  securityGroupId: change-securityGroupId
+server:
+  host: your-server-host
